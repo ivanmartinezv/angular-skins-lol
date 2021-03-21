@@ -12,11 +12,13 @@ import {
 //servicios
 import { AspectoService } from "../servicios/aspecto.service";
 import { CampeonService } from "../servicios/campeon.service";
+import { ModalService } from "../servicios/modal.service";
 
 @Component({
   selector: "app-campeon",
   templateUrl: "../vistas/campeon.component.html",
-  styleUrls: ["../css/campeon.component.css"]
+  styleUrls: ["../css/campeon.component.css"],
+  providers: [ModalService]
 })
 
 //COMPONENTE CREADO PARA IMPLEMENTAR UN MODELO NO RELACIONAL DE DATOS
@@ -26,6 +28,7 @@ export class CampeonComponent implements OnInit {
   public contador_posesion: number = 0;
   public contador_botin: number = 0;
 
+  //(I) Array que contendrá los datos de firebase
   public campeones: any = [
     {
       id: 1,
@@ -54,11 +57,32 @@ export class CampeonComponent implements OnInit {
       cont_botin: 0
     }
   ];
+  public cant_campeones: number;
+
+  //(II) atributos para editar productos
+  public documentId = null;
+
+  /*La app maneja 2 estados, currentStatus = 0 -> la app se encuentra en modo de creación?? de documentos, ó currentStatus = 1 -> la app se encuentra en modo de edición?? de documentos. */
+  public currentStatus = 1;
+  public newCampeonForm = new FormGroup({
+    nombre: new FormControl("", Validators.required),
+    url: new FormControl("", Validators.required),
+    id: new FormControl("")
+    //al enviar los datos del formulario, hay que agregar los CONTADORES
+  });
 
   constructor(
     private _campeonService: CampeonService,
-    private _aspectoService: AspectoService
-  ) {}
+    private _aspectoService: AspectoService,
+    public _modalService: ModalService
+  ) {
+    //funcion con los datos que trae el servicio
+    this.newCampeonForm.setValue({
+      id: "",
+      nombre: "",
+      url: ""
+    });
+  }
 
   ngOnInit() {
     console.log("ngOnInit()");
@@ -72,4 +96,69 @@ export class CampeonComponent implements OnInit {
   }
 
   lecturaDatosFirebase() {}
+
+  //METODOS PARA ABRIR Y CERRAR EL MODAL
+  openModal(id) {
+    //id: string
+    this._modalService.open(id);
+  }
+
+  closeModal(id) {
+    //id: string
+    this._modalService.close(id);
+  }
+
+  //CRUD DE CAMPEON
+  public newCampeon(form, documentId = this.documentId) {
+    console.log(`Status: ${this.currentStatus}`);
+    if (this.currentStatus == 1) {
+      //CREACION DE DOCUMENTOS
+      let data = {
+        //datos del formulario
+        nombre: <string>form.nombre,
+        url: <string>form.url,
+        aspectos: {},
+        cont_obtenible: 0,
+        cont_posesion: 0,
+        cont_botin: 0
+      };
+      this._campeonService.createCampeon(data).then(
+        () => {
+          console.log("Documento creado exitosamente.");
+          //reiniciar formulario
+          this.newCampeonForm.setValue({
+            nombre: "",
+            url: "",
+            id: ""
+          });
+          //si la bdd está vacia y agrego el primer campeon
+          //this.mostrarEnviar = false; //no deberia enviar
+          //this.mostrarFormatear = true; //permito formatear
+        },
+        error => {
+          console.error(error);
+        }
+      );
+    } else {
+      //EDICION DE DOCUMENTOS (solo implica modificar nombre y/o url)
+      let data = {
+        nombre: <string>form.nombre,
+        url: <string>form.url
+      };
+      this._campeonService.updateCampeon(documentId, data).then(
+        () => {
+          this.currentStatus = 1;
+          this.newCampeonForm.setValue({
+            nombre: "",
+            url: "",
+            id: ""
+          });
+          console.log("Documento editado exitosamente.");
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    }
+  }
 }

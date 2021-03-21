@@ -15,12 +15,15 @@ import { CampeonComponent } from "./componentes/campeon.component";
 //servicios para BDD
 import { CampeonService } from "./servicios/campeon.service";
 import { AspectoService } from "./servicios/aspecto.service";
+//modal
+import { ModalComponent } from "./componentes/modal.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     //componentes
-    CampeonComponent
+    CampeonComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,
