@@ -53,37 +53,27 @@
     </div>
 
     <div class="col-md-4">
-      <button>Add champ</button>
-      <a (click)="openModal('addchamp-modal')" class="btn btn-xs btn-success"
-        >Agregar Campeon</a
+      <b>Agregar nuevo campeon</b>
+      <form
+        (ngSubmit)="newCampeon(newCampeonForm.value)"
+        [formGroup]="newCampeonForm"
       >
+        <div class="form-group">
+          <input type="hidden" formControlName="id" />
+          <label for="nombre">Nombre:</label><br />
+          <input type="text" formControlName="nombre" />
+          <br />
+          <label for="url_img">Imagen:</label><br />
+          <input type="url" formControlName="url" />
+          <br />
+          <input
+            type="submit"
+            class="btn--blue btn--add"
+            [disabled]="!newCampeonForm.valid"
+            value="Guardar"
+          />
+        </div>
+      </form>
     </div>
   </div>
 </div>
-
-<jw-modal id="addchamp-modal">
-  <b>Agregar nuevo campeon</b>
-  <form
-    (ngSubmit)="newCampeon(newCampeonForm.value)"
-    [formGroup]="newCampeonForm"
-  >
-    <div class="form-group">
-      <input type="hidden" formControlName="id" />
-      <label for="nombre">Nombre:</label><br />
-      <input type="text" formControlName="nombre" />
-      <br />
-      <label for="url_img">Imagen:</label><br />
-      <input type="url" formControlName="url" />
-      <br />
-      <input
-        type="submit"
-        class="btn--blue btn--add"
-        [disabled]="!newCampeonForm.valid"
-        value="Guardar"
-      />
-    </div>
-    <button class="btn btn-danger" (click)="closeModal('addchamp-modal')">
-      Cancelar (y blanquear formulario)
-    </button>
-  </form>
-</jw-modal>
