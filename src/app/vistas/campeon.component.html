@@ -1,18 +1,60 @@
-Titulo
+<h2>{{titulo}}</h2>
 
-Campeones y sus aspectos
+<h3>Campeones y sus aspectos</h3>
+<button>Add champ</button>
+<br />
 
-1. Aatrox   (editar, eliminar, agregar aspecto)
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="row" *ngFor="let campeon of campeones; let i=index">
+        <b>{{i+1}}.- {{campeon.nombre}}</b>
 
-Tabla 
-    Nombre     Tipo    Precio    Obtenible   Posesion   Botin
-a. Mecha      Epica    1350       si           si         no
-b.
-c.
-d.
-e.
-f.
-g.
+        <button>Edit</button>
+        <button>Delete</button>
+        <button>Add Skin</button>
 
+        <div>
+          <table border="1">
+            <thead>
+              <tr>
+                <th width="30">N°</th>
+                <th width="250">Skin</th>
+                <th width="80">Tipo</th>
+                <th width="60">Precio</th>
+                <th>Obtenible?</th>
+                <th>Posesión?</th>
+                <th>Botin?</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let aspecto of campeon.aspectos; let j=index">
+              <tr>
+                <td>{{j+1}}</td>
+                <td>{{aspecto.nombre_aspecto}}</td>
+                <td>{{aspecto.tipo}}</td>
+                <td>{{aspecto.precio}}</td>
+                <td>
+                  <b *ngIf="aspecto.obtenible">Si</b>
+                  <b *ngIf="!aspecto.obtenible">No</b>
+                </td>
+                <td>
+                  <b *ngIf="aspecto.posesion">Si</b>
+                  <b *ngIf="!aspecto.posesion">No</b>
+                </td>
 
+                <td>
+                  <b *ngIf="aspecto.botin">Si</b>
+                  <b *ngIf="!aspecto.botin">No</b>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
+    <div class="col-md-4">
+      4 columnas
+    </div>
+  </div>
+</div>
