@@ -15,7 +15,6 @@ export class CampeonService {
   //(1) Crea un nuevo campeon en firebase
   public createCampeon(data: {
     nombre: string;
-    url: string;
     aspectos: {}; //era any[], queda RESUELTO
     cont_obtenible: number;
     cont_posesion: number;
