@@ -8,10 +8,9 @@
     <div class="col-md-8">
       <div class="row" *ngFor="let campeon of campeones; let i=index">
         <b>{{i+1}}.- {{campeon.nombre}}</b>
-
         <button>Edit</button>
         <button>Delete</button>
-        <button>Add Skin</button>
+        <button (click)="agregaAspecto(campeon.id)">Add Skin</button>
 
         <div>
           <table border="1">
@@ -53,27 +52,74 @@
     </div>
 
     <div class="col-md-4">
-      <b>Agregar nuevo campeon</b>
-      <form
-        (ngSubmit)="newCampeon(newCampeonForm.value)"
-        [formGroup]="newCampeonForm"
-      >
-        <div class="form-group">
-          <input type="hidden" formControlName="id" />
-          <label for="nombre">Nombre:</label><br />
-          <input type="text" formControlName="nombre" />
-          <br />
-          <label for="url_img">Imagen:</label><br />
-          <input type="url" formControlName="url" />
-          <br />
-          <input
+      <div class="row">
+        <h4>Agregar nuevo campeon</h4>
+        <form (ngSubmit)="newCampeon(newCampeonForm.value)" [formGroup]="newCampeonForm">
+          <div class="form-group">
+            <input type="hidden" formControlName="id" />
+            <label for="nombre">Nombre:</label><br />
+            <input type="text" formControlName="nombre" />
+            <br />
+            <input
             type="submit"
             class="btn--blue btn--add"
             [disabled]="!newCampeonForm.valid"
             value="Guardar"
           />
-        </div>
-      </form>
+          </div>
+        </form>
+      </div>
+      <!--ESTE DIV SE MUESTRA SI SE OPRIME AGREGAR ASPECTO EN EL i-ESIMO CAMPEON-->
+      <div class="row" *ngIf="agregarAspecto">
+        <h4>Agregar nuevo aspecto</h4>
+        <form (ngSubmit)="newAspecto(newAspectoForm.value)" [formGroup]="newAspectoForm">
+          <div class="form-group">
+            <input type="hidden" formControlName="id" />
+            <label for="nombre">Nombre aspecto:</label><br />
+            <input type="text" formControlName="nombre_aspecto" />
+            <br />
+            <!--el for="nombre" deberia cambiarlo???-->
+            <label for="nombre">Tipo:</label><br />
+            <input type="text" formControlName="tipo" />
+            <br />
+
+            <label for="nombre">Precio:</label><br />
+            <input type="number" formControlName="precio" />
+            <br />
+
+            <label for="nombre">Obtenible:</label><br />
+            <input type="checkbox" checked formControlName="obtenible"/>
+            <br />
+
+            <label for="nombre">Posesion:</label><br />
+            <input type="checkbox" checked formControlName="posesion"/>
+            <br />
+
+            <label for="nombre">Botin:</label><br />
+            <input type="checkbox" checked formControlName="botin"/>
+            <br />
+
+            <!--PRIMERA OPCION: SELECCIONAR EL CAMPEON-->
+            <label for="nombre">Campeon (ID):</label><br />
+            <select formControlName="id_campeon">
+              <option *ngFor="let campeon of campeones; let i=index" [value]="campeon.id">
+                {{campeon.nombre}}
+              </option>
+            </select>
+            <br />
+
+            <!--segunda opcion: que al oprimir el boton pa agregar un aspecto desde un campeon, que se envie y recibe el id del campeon para el aspecto, se ahorra el select-->
+            <input type="hidden" formControlName="id_campeon" value="idChamp_recibeskin" />
+
+            <input
+            type="submit"
+            class="btn--blue btn--add"
+            [disabled]="!newAspectoForm.valid"
+            value="Guardar"
+          />
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

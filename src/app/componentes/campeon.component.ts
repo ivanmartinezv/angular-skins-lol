@@ -59,16 +59,32 @@ export class CampeonComponent implements OnInit {
   ];
   public cant_campeones: number;
 
-  //(II) atributos para editar productos
+  //(II) atributos para editar campeones
   public documentId = null;
 
   /*La app maneja 2 estados, currentStatus = 0 -> la app se encuentra en modo de creación?? de documentos, ó currentStatus = 1 -> la app se encuentra en modo de edición?? de documentos. */
-  public currentStatus = 1;
+  public currentStatusCampeon = 1;
   public newCampeonForm = new FormGroup({
     nombre: new FormControl("", Validators.required),
-    url: new FormControl("", Validators.required),
     id: new FormControl("")
     //al enviar los datos del formulario, hay que agregar los CONTADORES
+  });
+
+  /* VARIABLES PARA AGREGAR O EDITAR ASPECTO */
+  /*La app maneja 2 estados, currentStatus = 0 -> la app se encuentra en modo de creación?? de documentos, ó currentStatus = 1 -> la app se encuentra en modo de edición?? de documentos. */
+  public currentStatusAspecto = 1;
+  public agregarAspecto: boolean = false;
+  public idChamp_recibeskin: number = 0;
+  public newAspectoForm = new FormGroup({
+    id: new FormControl(""),
+    nombre_aspecto: new FormControl("", Validators.required),
+    tipo: new FormControl("", Validators.required),
+    precio: new FormControl(0, Validators.required),
+    obtenible: new FormControl(null, Validators.required),
+    posesion: new FormControl(null, Validators.required),
+    botin: new FormControl(null, Validators.required),
+    id_campeon: new FormControl(0, Validators.required)
+    //al enviar los datos del formulario, hay que actualizar los CONTADORES
   });
 
   constructor(
@@ -79,8 +95,7 @@ export class CampeonComponent implements OnInit {
     //funcion con los datos que trae el servicio
     this.newCampeonForm.setValue({
       id: "",
-      nombre: "",
-      url: ""
+      nombre: ""
     });
   }
 
@@ -110,8 +125,8 @@ export class CampeonComponent implements OnInit {
 
   //CRUD DE CAMPEON
   public newCampeon(form, documentId = this.documentId) {
-    console.log(`Status: ${this.currentStatus}`);
-    if (this.currentStatus == 1) {
+    console.log(`Status: ${this.currentStatusCampeon}`);
+    if (this.currentStatusCampeon == 1) {
       //CREACION DE DOCUMENTOS
       let data = {
         //datos del formulario
@@ -147,7 +162,67 @@ export class CampeonComponent implements OnInit {
       };
       this._campeonService.updateCampeon(documentId, data).then(
         () => {
-          this.currentStatus = 1;
+          this.currentStatusCampeon = 1;
+          this.newCampeonForm.setValue({
+            nombre: "",
+            url: "",
+            id: ""
+          });
+          console.log("Documento editado exitosamente.");
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    }
+  }
+
+  //CRUD DE ASPECTO
+  public agregaAspecto(ide: number) {
+    //cambiar valor de verdad
+    this.agregarAspecto = true;
+    this.idChamp_recibeskin = ide;
+  }
+
+  public newAspecto(form, documentId = this.documentId) {
+    console.log(`Status: ${this.currentStatusCampeon}`);
+    if (this.currentStatusCampeon == 1) {
+      //CREACION DE DOCUMENTOS
+      let data = {
+        //datos del formulario
+        nombre: <string>form.nombre,
+        url: <string>form.url,
+        aspectos: {},
+        cont_obtenible: 0,
+        cont_posesion: 0,
+        cont_botin: 0
+      };
+      this._campeonService.createCampeon(data).then(
+        () => {
+          console.log("Documento creado exitosamente.");
+          //reiniciar formulario
+          this.newCampeonForm.setValue({
+            nombre: "",
+            url: "",
+            id: ""
+          });
+          //si la bdd está vacia y agrego el primer campeon
+          //this.mostrarEnviar = false; //no deberia enviar
+          //this.mostrarFormatear = true; //permito formatear
+        },
+        error => {
+          console.error(error);
+        }
+      );
+    } else {
+      //EDICION DE DOCUMENTOS (solo implica modificar nombre y/o url)
+      let data = {
+        nombre: <string>form.nombre,
+        url: <string>form.url
+      };
+      this._campeonService.updateCampeon(documentId, data).then(
+        () => {
+          this.currentStatusCampeon = 1;
           this.newCampeonForm.setValue({
             nombre: "",
             url: "",
