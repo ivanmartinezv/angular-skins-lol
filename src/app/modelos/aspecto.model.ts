@@ -5,7 +5,7 @@ export class Aspecto {
   obtenible: boolean;
   posesion: boolean;
   botin: boolean;
-  id_campeon: number;
+  id_campeon: string; //documentId
 
   constructor() {}
   /*constructor(
@@ -15,7 +15,7 @@ export class Aspecto {
     o: boolean,
     po: boolean,
     b: boolean,
-    idc: number
+    idc: string
   ) {
     this.nombre_aspecto = na;
     this.tipo = t;

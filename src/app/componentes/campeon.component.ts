@@ -61,7 +61,7 @@ export class CampeonComponent implements OnInit {
   public cant_campeones: number;
 
   //(II) atributos para editar campeones
-  public documentId = null;
+  public documentId: string = null;
 
   /*La app maneja 2 estados, currentStatus = 1 -> la app se encuentra en modo de creación?? de documentos, ó currentStatus = 0 -> la app se encuentra en modo de edición?? de documentos. */
   public currentStatusCampeon = 1; //1 CREA, 0 EDITA
@@ -72,10 +72,12 @@ export class CampeonComponent implements OnInit {
   });
 
   /* VARIABLES PARA AGREGAR O EDITAR ASPECTO */
+  //(II bis) atributos para crear aspectos
+  public idChamp_recibeskin: string = null;
+  public agregarAspecto: boolean = false;
+
   /*La app maneja 2 estados, currentStatus = 0 -> la app se encuentra en modo de creación?? de documentos, ó currentStatus = 1 -> la app se encuentra en modo de edición?? de documentos. */
   public currentStatusAspecto = 1; //1 EDITA, 0 CREA
-  public agregarAspecto: boolean = false;
-  public idChamp_recibeskin: number = 0;
   public newAspectoForm = new FormGroup({
     id: new FormControl(""),
     nombre_aspecto: new FormControl("", Validators.required),
@@ -84,7 +86,9 @@ export class CampeonComponent implements OnInit {
     obtenible: new FormControl(null, Validators.required),
     posesion: new FormControl(null, Validators.required),
     botin: new FormControl(null, Validators.required),
-    id_campeon: new FormControl(0, Validators.required)
+    id_campeon: new FormControl(
+      "" /*, Validators.required NO PORQUE SE CONOCE AL PRESIONAR EL BOTON ADD SKIN*/
+    )
     //al enviar los datos del formulario, hay que actualizar los CONTADORES
   });
 
@@ -125,78 +129,71 @@ export class CampeonComponent implements OnInit {
             data: campeonData.payload.doc.data() //datos del data
           });
         });
+
+        if (this.campeones == null) {
+          console.log("campeones es null");
+          this.campeones.length = null;
+        } else {
+          if (this.campeones.length > 0) {
+            this.cant_campeones = this.campeones.length;
+            console.log("campeones leidos de firebase:", this.campeones.length);
+          }
+        }
       },
       err => {
         console.log(err);
       }
     );
-    if (this.campeones == null) {
-      console.log("campeones es null");
-      //this.mostrarEnviar = true;
-      //this.mostrarFormatear = false;
-    } else {
-      if (this.campeones.length > 0) {
-        console.log("campeones leidos de firebase:", this.campeones.length);
-        //this.mostrarEnviar = false;
-        //this.mostrarFormatear = true;
-      }
-    }
-  }
-
-  //METODOS PARA ABRIR Y CERRAR EL MODAL
-  openModal(id) {
-    //id: string
-    this._modalService.open(id);
-  }
-
-  closeModal(id) {
-    //id: string
-    this._modalService.close(id);
   }
 
   //CRUD DE CAMPEON
   public newCampeon(form, documentId = this.documentId) {
-    console.log(`Status: ${this.currentStatusCampeon}`);
+    console.log("documentID: ", documentId);
+    console.log("Status campeon: ", this.currentStatusCampeon);
+
     if (this.currentStatusCampeon == 1) {
-      //CREACION DE DOCUMENTOS
+      //CREACION DE DOCUMENTOS (id y objeto)
+      let array: [] = [];
       let data = {
         //datos del formulario
         nombre: <string>form.nombre,
-        aspectos: {},
+        aspectos: array,
         cont_obtenible: 0,
         cont_posesion: 0,
         cont_botin: 0
       };
+      //PRIMER SERVICIO
       this._campeonService.createCampeon(data).then(
         () => {
-          console.log("Documento creado exitosamente.");
-          //reiniciar formulario
+          console.log("Documento de campeon creado exitosamente.");
+          //limpiar formulario
           this.newCampeonForm.setValue({
             nombre: "",
             id: ""
           });
           //si la bdd está vacia y agrego el primer campeon
-          //this.mostrarEnviar = false; //no deberia enviar
-          //this.mostrarFormatear = true; //permito formatear
+          //se crea la coleccion campeones??
         },
         error => {
           console.error(error);
         }
       );
     } else {
-      //EDICION DE DOCUMENTOS (solo implica modificar nombre y/o url)
+      //EDICION DE DOCUMENTOS (solo implica modificar nombre)
       let data = {
-        nombre: <string>form.nombre,
-        url: <string>form.url
+        nombre: <string>form.nombre
+        //Y EL RESTO DE ATRIBUTOS QUE ONDA?? SE MANTIENE O ELIMINA
       };
+      //TERCER SERVICIO
       this._campeonService.updateCampeon(documentId, data).then(
         () => {
+          //reinicia status y limpia formulario
           this.currentStatusCampeon = 1;
           this.newCampeonForm.setValue({
-            nombre: "",
-            id: ""
+            id: "",
+            nombre: ""
           });
-          console.log("Documento editado exitosamente.");
+          console.log("Documento de campeon editado exitosamente.");
         },
         error => {
           console.log(error);
@@ -205,23 +202,71 @@ export class CampeonComponent implements OnInit {
     }
   }
 
+  //ESTE METODO CARGA EN EL FORMULARIO LOS DATOS DEL CAMPEON A EDITAR
+  //NO LOS MODIFICA
+  public editCampeon(documentId) {
+    console.log("editCampeon(documentId):", documentId);
+    //SEGUNDO SERVICIO
+    let editSubscribe = this._campeonService
+      .getCampeon(documentId)
+      .subscribe(campeon => {
+        //CAMBIAR EL INTERRUPTOR A MODO EDICION = 2
+        this.currentStatusCampeon = 2;
+        this.documentId = documentId;
+        this.newCampeonForm.setValue({
+          id: documentId,
+          nombre: campeon.payload.data()["nombre"]
+        });
+        editSubscribe.unsubscribe();
+      });
+  }
+
+  public deleteCampeon(documentId) {
+    console.log("deleteCampeon(documentId):", documentId);
+    this._campeonService.deleteCampeon(documentId).then(
+      () => {
+        console.log("Documento eliminado!");
+      },
+      error => {
+        console.error(error);
+      }
+    );
+  }
+
   //CRUD DE ASPECTO
-  public agregaAspecto(ide: number) {
+  public agregaAspecto(ide: string) {
     //cambiar valor de verdad
     this.agregarAspecto = true;
+    //captura el documentID del campeon que recibira un aspecto
     this.idChamp_recibeskin = ide;
   }
 
-  public buscarCampeon(ide: number) {
-    for (let i = 0; i < this.campeones.length; i++) {
+  public buscarCampeon(ide: string) {
+    console.log("campeon a buscar: ", ide);
+    console.log("largo de campeones para buscar: ", this.cant_campeones);
+    let i = 0;
+    //campeones es la coleccion de documentos
+    while (this.campeones[i] != null) {
       if (this.campeones[i].id == ide) {
+        console.log("campeon encontrado!!");
+        //retorna campeon si el ide coincide con el id de algun documento
         return this.campeones[i];
       }
+      i++;
     }
+    /*for (let i = 0; i < this.cant_campeones; i++) {
+      //campeones es la coleccion de documentos
+      if (this.campeones[i].id == ide) {
+        console.log("campeon encontrado!!");
+        //retorna campeon si el ide coincide con el id de algun documento
+        return this.campeones[i];
+      }
+    }*/
     return null;
   }
 
-  public newAspecto(form, documentId = this.documentId) {
+  public newAspecto(form, documentId = this.idChamp_recibeskin) {
+    console.log("newAspecto(formulario y docID capturado:", form, documentId);
     console.log(`Status: ${this.currentStatusAspecto}`);
 
     if (this.currentStatusAspecto == 1) {
@@ -235,50 +280,84 @@ export class CampeonComponent implements OnInit {
         obtenible: form.obtenible,
         posesion: form.posesion,
         botin: form.botin,
-        id_campeon: form.id_campeon
+        id_campeon: documentId //form.id_campeon NO
       };
       console.log("datos del aspecto: ", data_aspecto);
       //traer datos del campeon que recibira el nuevo aspecto
-      let campeon_nuevaskin = this.buscarCampeon(this.idChamp_recibeskin);
+      console.log("ide del campeon que recibira skin: ", documentId);
+      let campeon_nuevaskin = this.buscarCampeon(documentId);
+
       if (campeon_nuevaskin != null) {
-        //si encuentra el campeon, se agregan los datos del formulario al array Aspectos
-        campeon_nuevaskin.aspectos.push(data_aspecto);
+        console.log("tamaño undefined?: ", campeon_nuevaskin.aspectos.length);
+        //crear array auxiliar de tamaño: actual+1
+        let campeon_skins_aux = [campeon_nuevaskin.aspectos.length + 1];
+        //recorrer auxiliar y agregar aspectos actuales y dejar ultimo vacio
+        for (let j = 0; j < campeon_nuevaskin.aspectos.length; j++) {
+          campeon_skins_aux[j] = campeon_nuevaskin.aspectos[j];
+        }
+        //se agregan los datos del formulario al final del array Aspectos
+        campeon_skins_aux[campeon_skins_aux.length] = data_aspecto;
+        /*campeon_nuevaskin.aspectos.push(data_aspecto);SOLO SI SE USABA JSON*/
+
         //PENDIENTE: ACTUALIZAR CONTADORES DEL CAMPEON
         /**cont_obtenible ++ si amerita
         cont_posesion ++ si amerita //cuantas tengo
         cont_botin ++ si amerita*/
 
         //UNA VEZ LA INFORMACION ESTA LISTA, SE ACTUALIZA EL CAMPEON
-        //convertir campeon a JSON
-        let champ_json = JSON.stringify(campeon_nuevaskin);
-        this._campeonService.updateCampeon(documentId, champ_json).then(
-          () => {
-            //apagar interrumptor nuevo aspecto
-            this.currentStatusAspecto = 0;
-            //limpiar formulario
-            this.newAspectoForm.setValue({
-              id: 0,
-              nombre_aspecto: "",
-              tipo: "",
-              precio: 0,
-              obtenible: null,
-              posesion: null,
-              botin: null,
-              id_campeon: 0
-            });
-            console.log("Documento de campeon + aspecto editado exitosamente.");
-          },
-          error => {
-            console.log(error);
-          }
-        );
+        //convertir auxiliar (tiene aspectos antiguos y el nuevo) a JSON
+        let data_updated_champ_json = JSON.stringify(campeon_skins_aux);
+        console.log("campeon con el nuevo aspecto: ", data_updated_champ_json);
+
+        //XXX SERVICIO: SI BIEN ESTE SERVICIO EDITA INFORMACION DE UN CAMPEON,
+        //SE CONSIDERA COMO QUE ESTA CREANDO UN NUEVO ASPECTO EN LA BDD
+        this._campeonService
+          .updateCampeon(documentId, data_updated_champ_json)
+          .then(
+            () => {
+              //apagar interrumptor crear aspecto de campeon
+              this.currentStatusAspecto = 1;
+              //limpiar formulario
+              this.newAspectoForm.setValue({
+                id: "",
+                nombre_aspecto: "",
+                tipo: "",
+                precio: 0,
+                obtenible: null,
+                posesion: null,
+                botin: null,
+                id_campeon: ""
+              });
+              //limpiar idChamp_recibeskin
+              this.idChamp_recibeskin = "";
+              console.log(
+                "Documento de campeon + aspecto editado exitosamente."
+              );
+            },
+            error => {
+              console.log(error);
+            }
+          );
       } else {
         alert("campeon para nueva skin, no existe");
       }
       /*NO QUIERO CREAR UN NUEVO CAMPEON SINO EDITARLO*/
       //EDICION DE DOCUMENTOS (solo implica modificar el array aspectos)
     } else {
+      //UN BOTON DE LA VISTA, DEBERIA CAMBIAR EL CURRENT A 2 Y ASI ENTRARIA A ESTE ELSE
+      //ESE BOTON DEBERIA PERMITIR EDITAR LOS DATOS DE ALGUN ASPECTO YA EXISTENTE
       console.log("modo creacion aspecto: ", this.currentStatusAspecto);
     }
+  }
+
+  //METODOS PARA ABRIR Y CERRAR EL MODAL
+  openModal(id) {
+    //id: string
+    this._modalService.open(id);
+  }
+
+  closeModal(id) {
+    //id: string
+    this._modalService.close(id);
   }
 }

@@ -5,19 +5,49 @@
 
 <div class="container">
   <div class="row">
+    <div class="col-md-4">
+      <div class="row">
+        <h4>Agregar nuevo campeon</h4>
+        <form (ngSubmit)="newCampeon(newCampeonForm.value)" [formGroup]="newCampeonForm">
+          <div class="form-group">
+            <input type="hidden" formControlName="id" />
+            <label for="nombre">Nombre:</label><br />
+            <input type="text" formControlName="nombre" />
+            <br />
+            <input
+            type="submit"
+            class="btn--blue btn--add"
+            [disabled]="!newCampeonForm.valid"
+            value="Guardar"
+          />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
     <div class="col-md-8">
       <div class="row" *ngFor="let campeon of campeones; let i=index">
-        <b>{{i+1}}.- {{campeon.nombre}}</b>
-        <button>Edit</button>
-        <button>Delete</button>
-        <button (click)="agregaAspecto(campeon.id)">Add Skin</button>
+        <b>{{i+1}}.- {{campeon.data.nombre}} ---</b>
 
+        <div class="btn--group">
+          <button class="btn--green btn--s" (click)="editCampeon(campeon.id)">
+            Editar
+          </button>
+          <button class="btn--red btn--s btn2" (click)="deleteCampeon(campeon.id)">
+            Eliminar
+          </button>
+          <button (click)="agregaAspecto(campeon.id)">
+            Add Skin
+            </button>
+        </div>
         <div>
           <table border="1">
             <thead>
               <tr>
                 <th width="30">N°</th>
-                <th width="250">Skin</th>
+                <th width="250">Nombre aspecto</th>
                 <th width="80">Tipo</th>
                 <th width="60">Precio</th>
                 <th>Obtenible?</th>
@@ -25,7 +55,7 @@
                 <th>Botin?</th>
               </tr>
             </thead>
-            <tbody *ngFor="let aspecto of campeon.aspectos; let j=index">
+            <tbody *ngFor="let aspecto of campeon.data.aspectos; let j=index">
               <tr>
                 <td>{{j+1}}</td>
                 <td>{{aspecto.nombre_aspecto}}</td>
@@ -52,26 +82,9 @@
     </div>
 
     <div class="col-md-4">
-      <div class="row">
-        <h4>Agregar nuevo campeon</h4>
-        <form (ngSubmit)="newCampeon(newCampeonForm.value)" [formGroup]="newCampeonForm">
-          <div class="form-group">
-            <input type="hidden" formControlName="id" />
-            <label for="nombre">Nombre:</label><br />
-            <input type="text" formControlName="nombre" />
-            <br />
-            <input
-            type="submit"
-            class="btn--blue btn--add"
-            [disabled]="!newCampeonForm.valid"
-            value="Guardar"
-          />
-          </div>
-        </form>
-      </div>
       <!--ESTE DIV SE MUESTRA SI SE OPRIME AGREGAR ASPECTO EN EL i-ESIMO CAMPEON-->
       <div class="row" *ngIf="agregarAspecto">
-        <h4>Agregar nuevo aspecto</h4>
+        <h4>Agregar nuevo aspecto para: {{idChamp_recibeskin}}</h4>
         <form (ngSubmit)="newAspecto(newAspectoForm.value)" [formGroup]="newAspectoForm">
           <div class="form-group">
             <input type="hidden" formControlName="id" />
@@ -88,28 +101,28 @@
             <br />
 
             <label for="nombre">Obtenible:</label><br />
-            <input type="checkbox" checked formControlName="obtenible"/>
+            <input type="checkbox" formControlName="obtenible"/>
             <br />
 
             <label for="nombre">Posesion:</label><br />
-            <input type="checkbox" checked formControlName="posesion"/>
+            <input type="checkbox" formControlName="posesion"/>
             <br />
 
             <label for="nombre">Botin:</label><br />
-            <input type="checkbox" checked formControlName="botin"/>
+            <input type="checkbox" formControlName="botin"/>
             <br />
 
             <!--PRIMERA OPCION: SELECCIONAR EL CAMPEON-->
-            <label for="nombre">Campeon (ID):</label><br />
+            <!--<label for="nombre">Campeon (ID):</label><br />
             <select formControlName="id_campeon">
               <option *ngFor="let campeon of campeones; let i=index" [value]="campeon.id">
-                {{campeon.nombre}}
+                {{campeon.data.nombre}}
               </option>
             </select>
-            <br />
+            <br />-->
 
-            <!--segunda opcion: que al oprimir el boton pa agregar un aspecto desde un campeon, que se envie y recibe el id del campeon para el aspecto, se ahorra el select-->
-            <input type="hidden" formControlName="id_campeon" value="idChamp_recibeskin" />
+            <!--segunda opcion: que al oprimir el boton pa agregar un aspecto desde un campeon, que se envie y reciba el id del campeon para el aspecto, se ahorra el select-->
+            <!--<input type="hidden" formControlName="id_campeon" value="idChamp_recibeskin" />-->
 
             <input
             type="submit"
