@@ -157,7 +157,7 @@ export class CampeonComponent implements OnInit {
       let data = {
         //datos del formulario
         nombre: <string>form.nombre,
-        aspectos: array,
+        aspectos: array, //era array, le habia puesto null
         cont_obtenible: 0,
         cont_posesion: 0,
         cont_botin: 0
@@ -288,29 +288,55 @@ export class CampeonComponent implements OnInit {
       let campeon_nuevaskin = this.buscarCampeon(documentId);
 
       if (campeon_nuevaskin != null) {
-        console.log("tamaño undefined?: ", campeon_nuevaskin.aspectos.length);
+        //EXISTEN DATOS EN LO QUE ESTOY TRAYENDO?
+        console.log("campeon al que le voy a dar skin: ", campeon_nuevaskin);
+        /*if (campeon_nuevaskin.data.aspectos == null) {
+          campeon_nuevaskin.data.aspectos = [];
+        }*/
+        console.log(
+          "tiene su array de aspectos declarado??: ",
+          campeon_nuevaskin.data.aspectos
+        );
+
+        console.log(
+          "tamaño undefined?: ",
+          campeon_nuevaskin.data.aspectos.length
+        );
+        let cant_aspectos_previa_nueva = campeon_nuevaskin.data.aspectos.length;
         //crear array auxiliar de tamaño: actual+1
-        let campeon_skins_aux = [campeon_nuevaskin.aspectos.length + 1];
+        let campeon_skins_aux = [cant_aspectos_previa_nueva + 1];
         //recorrer auxiliar y agregar aspectos actuales y dejar ultimo vacio
-        for (let j = 0; j < campeon_nuevaskin.aspectos.length; j++) {
-          campeon_skins_aux[j] = campeon_nuevaskin.aspectos[j];
+        for (let j = 0; j < cant_aspectos_previa_nueva; j++) {
+          campeon_skins_aux[j] = campeon_nuevaskin.data.aspectos[j];
         }
         //se agregan los datos del formulario al final del array Aspectos
-        campeon_skins_aux[campeon_skins_aux.length] = data_aspecto;
-        /*campeon_nuevaskin.aspectos.push(data_aspecto);SOLO SI SE USABA JSON*/
+        campeon_skins_aux[cant_aspectos_previa_nueva] = data_aspecto;
+        /*campeon_nuevaskin.data.aspectos.push(data_aspecto);SOLO SI SE USABA JSON*/
 
-        //PENDIENTE: ACTUALIZAR CONTADORES DEL CAMPEON
-        /**cont_obtenible ++ si amerita
-        cont_posesion ++ si amerita //cuantas tengo
-        cont_botin ++ si amerita*/
+        //se actualiza el array con el nuevo aspecto
+        campeon_nuevaskin.data.aspectos = campeon_skins_aux;
 
-        //UNA VEZ LA INFORMACION ESTA LISTA, SE ACTUALIZA EL CAMPEON
-        //convertir auxiliar (tiene aspectos antiguos y el nuevo) a JSON
-        let data_updated_champ_json = JSON.stringify(campeon_skins_aux);
+        //PENDIENTE: ACTUALIZAR CONTADORES DE campeon_nuevaskin CON 3 IF
+        if (data_aspecto.obtenible) {
+          campeon_nuevaskin.data.cont_obtenible++;
+        }
+        if (data_aspecto.posesion) {
+          campeon_nuevaskin.data.cont_posesion++;
+        }
+        if (data_aspecto.botin) {
+          campeon_nuevaskin.data.cont_botin++;
+        }
+        //UNA VEZ LA INFORMACION ESTA LISTA, SE ACTUALIZA EL CAMPEON COMPLETO
+        //convertir campeon completo a JSON
+        let data_updated_champ_json = JSON.stringify(campeon_nuevaskin);
         console.log("campeon con el nuevo aspecto: ", data_updated_champ_json);
 
         //XXX SERVICIO: SI BIEN ESTE SERVICIO EDITA INFORMACION DE UN CAMPEON,
         //SE CONSIDERA COMO QUE ESTA CREANDO UN NUEVO ASPECTO EN LA BDD
+
+        //voy aca 337 337 337 VOY ACAAAAAAAAAAAAAAAAAA
+        /*ERROR FirebaseError: Function DocumentReference.set() called with invalid data. Data must be an object, but it was: "{\"id\":\"55x4y1sTv571N..." (found in document campeones/55x4y1sTv571NPtmtaEG)*/
+
         this._campeonService
           .updateCampeon(documentId, data_updated_champ_json)
           .then(
@@ -339,7 +365,7 @@ export class CampeonComponent implements OnInit {
             }
           );
       } else {
-        alert("campeon para nueva skin, no existe");
+        console.log("el campeon para nueva skin, no existe");
       }
       /*NO QUIERO CREAR UN NUEVO CAMPEON SINO EDITARLO*/
       //EDICION DE DOCUMENTOS (solo implica modificar el array aspectos)
