@@ -15,7 +15,7 @@ export class CampeonService {
   //(1) Crea un nuevo campeon en firebase
   public createCampeon(data: {
     nombre: string;
-    aspectos: []; //era any[], queda RESUELTO
+    aspectos: {}[]; //era any[], queda RESUELTO
     cont_obtenible: number;
     cont_posesion: number;
     cont_botin: number;
@@ -40,30 +40,48 @@ export class CampeonService {
     return champs;
   }
 
-  //(4) Actualiza un campeon
+  //(4) Actualiza el nombre del campeon
   //en primera instancia borra los datos diferentes al nombre y url
   public updateCampeon(documentId: string, data: any) {
-    //data es any porque podria recibir cualquier json
-    let campeonActual = this.getCampeon(documentId);
-
-    //TENDRIA QUE USAR GETCAMPEON CON subscribe
-    /*
-    let editSubscribe = this.getCampeon(documentId).subscribe(campeon => {
-      //CAMBIAR EL INTERRUPTOR A MODO EDICION = 2
-      let docId = documentId;
-      let nombreCamp = campeon.payload.data()["nombre"]; 
-      editSubscribe.unsubscribe();
-    });
-    */
-    console.log(
-      "campeon actual (como lo muestra sin suscribe?)): ",
-      campeonActual
-    );
-    console.log("los datos del update son: ", data);
+    //data es any porque podria recibir cualquier json (en este caso solo el nombre del campeon)
     return this.afs
       .collection("campeones")
       .doc(documentId)
       .set(data);
+  }
+
+  public updateCampeonSkin(documentId: string, data: any) {
+    console.log("los datos del updateCampeonSkin() son: ", data);
+    let datos /*: {
+      nombre: string;
+      aspectos: [
+        {
+          id: string;
+          nombre_aspecto: string;
+          tipo: string;
+          precio: number;
+          obtenible: boolean;
+          posesion: boolean;
+          botin: boolean;
+          id_campeon: string;
+        }
+      ];
+      cont_obtenible: number;
+      cont_posesion: number;
+      cont_botin: number;
+    }*/ = {
+      nombre: data.nombre,
+      aspectos: data.aspectos,
+      cont_obtenible: data.cont_obtenible,
+      cont_posesion: data.cont_posesion,
+      cont_botin: data.cont_botin
+    };
+    console.log("datos en update 2 service: ", datos);
+
+    return this.afs
+      .collection("campeones")
+      .doc(documentId)
+      .set(data); //data
   }
 
   //(5) Elimina un campeon

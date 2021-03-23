@@ -153,7 +153,10 @@ export class CampeonComponent implements OnInit {
 
     if (this.currentStatusCampeon == 1) {
       //CREACION DE DOCUMENTOS (id y objeto)
-      let array: [] = [];
+      let array: {}[] = [
+        //array de {}
+        /*{}, {}, {}*/
+      ];
       let data = {
         //datos del formulario
         nombre: <string>form.nombre,
@@ -273,7 +276,7 @@ export class CampeonComponent implements OnInit {
       //EDICION DE DOCUMENTOS
       let data_aspecto = {
         //datos del formulario de nuevo aspecto
-        id: form.id,
+        //id: form.id,
         nombre_aspecto: <string>form.nombre_aspecto,
         tipo: <string>form.tipo,
         precio: <number>form.precio,
@@ -290,6 +293,11 @@ export class CampeonComponent implements OnInit {
       if (campeon_nuevaskin != null) {
         //EXISTEN DATOS EN LO QUE ESTOY TRAYENDO?
         console.log("campeon al que le voy a dar skin: ", campeon_nuevaskin);
+        console.log(
+          "campeon.data al que le voy a dar skin: ",
+          campeon_nuevaskin.data
+        );
+
         /*if (campeon_nuevaskin.data.aspectos == null) {
           campeon_nuevaskin.data.aspectos = [];
         }*/
@@ -299,7 +307,7 @@ export class CampeonComponent implements OnInit {
         );
 
         console.log(
-          "tamaño undefined?: ",
+          "tamaño undefined o numerico?: ",
           campeon_nuevaskin.data.aspectos.length
         );
         let cant_aspectos_previa_nueva = campeon_nuevaskin.data.aspectos.length;
@@ -327,9 +335,24 @@ export class CampeonComponent implements OnInit {
           campeon_nuevaskin.data.cont_botin++;
         }
         //UNA VEZ LA INFORMACION ESTA LISTA, SE ACTUALIZA EL CAMPEON COMPLETO
-        //convertir campeon completo a JSON
-        let data_updated_champ_json = JSON.stringify(campeon_nuevaskin);
-        console.log("campeon con el nuevo aspecto: ", data_updated_champ_json);
+        //(1 falla) convertir documento con campeon completo a JSON?? NO
+        //let data_updated_champ_json = JSON.stringify(campeon_nuevaskin);
+
+        //(2 ha fallado) convertir campeon.data a JSON?? maybe SI
+        //let data_updated_champ_json = JSON.stringify(campeon_nuevaskin.data);
+        //console.log("campeon con el nuevo aspecto: ", data_updated_champ_json);
+
+        //(3 pendiente) crear un {} con los datos del campeon + array aspectos actualizado
+        let updated_data = {
+          //datos del campeon
+          nombre: campeon_nuevaskin.data.nombre,
+          //aspectos actualizados del campeon
+          aspectos: campeon_nuevaskin.data.aspectos, //era array, le habia puesto null
+          //contadores actualizados
+          cont_obtenible: campeon_nuevaskin.data.cont_obtenible,
+          cont_posesion: campeon_nuevaskin.data.cont_posesion,
+          cont_botin: campeon_nuevaskin.data.cont_botin
+        };
 
         //XXX SERVICIO: SI BIEN ESTE SERVICIO EDITA INFORMACION DE UN CAMPEON,
         //SE CONSIDERA COMO QUE ESTA CREANDO UN NUEVO ASPECTO EN LA BDD
@@ -338,7 +361,7 @@ export class CampeonComponent implements OnInit {
         /*ERROR FirebaseError: Function DocumentReference.set() called with invalid data. Data must be an object, but it was: "{\"id\":\"55x4y1sTv571N..." (found in document campeones/55x4y1sTv571NPtmtaEG)*/
 
         this._campeonService
-          .updateCampeon(documentId, data_updated_champ_json)
+          .updateCampeonSkin(documentId, updated_data) //recibe ID:string y DATA:{}
           .then(
             () => {
               //apagar interrumptor crear aspecto de campeon
