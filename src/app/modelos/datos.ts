@@ -1,6 +1,5 @@
 export const todosLosCampeones = [
   {
-    id: 1,
     nombre: "Aatrox",
     aspectos: [
       {
@@ -10,7 +9,7 @@ export const todosLosCampeones = [
         o: true,
         po: false,
         b: false,
-        idc: 1
+        idc: 0
       },
       {
         na: "Aatrox Justiciero",
@@ -19,7 +18,7 @@ export const todosLosCampeones = [
         o: true,
         po: true,
         b: false,
-        idc: 1
+        idc: 0
       }
     ],
     cont_obtenibles: 0,
