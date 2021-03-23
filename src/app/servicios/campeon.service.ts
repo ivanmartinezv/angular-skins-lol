@@ -52,32 +52,6 @@ export class CampeonService {
 
   public updateCampeonSkin(documentId: string, data: any) {
     console.log("los datos del updateCampeonSkin() son: ", data);
-    let datos /*: {
-      nombre: string;
-      aspectos: [
-        {
-          id: string;
-          nombre_aspecto: string;
-          tipo: string;
-          precio: number;
-          obtenible: boolean;
-          posesion: boolean;
-          botin: boolean;
-          id_campeon: string;
-        }
-      ];
-      cont_obtenible: number;
-      cont_posesion: number;
-      cont_botin: number;
-    }*/ = {
-      nombre: data.nombre,
-      aspectos: data.aspectos,
-      cont_obtenible: data.cont_obtenible,
-      cont_posesion: data.cont_posesion,
-      cont_botin: data.cont_botin
-    };
-    console.log("datos en update 2 service: ", datos);
-
     return this.afs
       .collection("campeones")
       .doc(documentId)

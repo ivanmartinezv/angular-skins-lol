@@ -174,6 +174,7 @@ export class CampeonComponent implements OnInit {
             nombre: "",
             id: ""
           });
+          //alert("Campeon agregado exitosamente");
           //si la bdd está vacia y agrego el primer campeon
           //se crea la coleccion campeones??
         },
@@ -338,8 +339,9 @@ export class CampeonComponent implements OnInit {
         //(1 falla) convertir documento con campeon completo a JSON?? NO
         //let data_updated_champ_json = JSON.stringify(campeon_nuevaskin);
 
-        //(2 ha fallado) convertir campeon.data a JSON?? maybe SI
+        //(2 ha fallado) convertir campeon.data a JSON?? maybe SI, falla.
         //let data_updated_champ_json = JSON.stringify(campeon_nuevaskin.data);
+        //como que convierte mal el documento.data a json y el updateservice falla
         //console.log("campeon con el nuevo aspecto: ", data_updated_champ_json);
 
         //(3 pendiente) crear un {} con los datos del campeon + array aspectos actualizado
@@ -356,10 +358,6 @@ export class CampeonComponent implements OnInit {
 
         //XXX SERVICIO: SI BIEN ESTE SERVICIO EDITA INFORMACION DE UN CAMPEON,
         //SE CONSIDERA COMO QUE ESTA CREANDO UN NUEVO ASPECTO EN LA BDD
-
-        //voy aca 337 337 337 VOY ACAAAAAAAAAAAAAAAAAA
-        /*ERROR FirebaseError: Function DocumentReference.set() called with invalid data. Data must be an object, but it was: "{\"id\":\"55x4y1sTv571N..." (found in document campeones/55x4y1sTv571NPtmtaEG)*/
-
         this._campeonService
           .updateCampeonSkin(documentId, updated_data) //recibe ID:string y DATA:{}
           .then(
@@ -382,6 +380,9 @@ export class CampeonComponent implements OnInit {
               console.log(
                 "Documento de campeon + aspecto editado exitosamente."
               );
+              //alert("Aspecto agregado exitosamente");
+              //cambiar valor de verdad
+              this.agregarAspecto = false;
             },
             error => {
               console.log(error);
